@@ -30,7 +30,7 @@ def wag_tail(pwm):
         pwm.duty_cycle = int(angle / 180 * 65535 / 20)
         time.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
 
-pwm = pwmio.PWMOut(board.GP18, frequency=50)
+pwm = pwmio.PWMOut(board.GP15, frequency=50)
 button_wag = setup_digital_io(board.GP16)
 led = digitalio.DigitalInOut(board.GP21)
 led.direction = digitalio.Direction.OUTPUT
