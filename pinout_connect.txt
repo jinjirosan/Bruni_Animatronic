@@ -1,0 +1,6 @@
+Connect a wire to the GND pin (GP26) on the Pimoroni Pico LiPo board.
+Connect the other end of the wire to the ground pin (GND) on the Tower Pro SG92R servo motor. Note that the SG92R servo should be connected to the PWM pin (GP15) on the Pimoroni Pico LiPo board for controlling the tail movement.
+Connect the ground pin (GND) on the Flora NeoPixel v2 to the ground pin (GP26) on the Pimoroni Pico LiPo board. The data signal should be connected to the data pin (GP19).
+Connect the ground pin (GND) on the button for activating the NeoPixel animation to the ground pin (GP26) on the Pimoroni Pico LiPo board. The input signal should be connected to the input pin (GP17).
+Connect the ground pin (GND) on the button for activating the tail wagging to the ground pin (GP26) on the Pimoroni Pico LiPo board. The input signal should be connected to the input pin (GP16).
+Connect the ground pin (GND) on the LED to the ground pin (GP26) on the Pimoroni Pico LiPo board. The output signal should be connected to the output pin (GP21).
