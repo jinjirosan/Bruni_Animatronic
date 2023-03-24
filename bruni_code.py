@@ -3,11 +3,10 @@
 # hardware platform : Pimoroni Pico LiPo
 # Animatronic driver : Tower Pro SG92R
 # LEDs : Flora Neopixel + kitelight bright EL-Wire
-# Codebase : MicroPython
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-0.03 (Alpha) - refactor C1.2.1
+# bruni_code.py : v4-0.03 (Alpha release!) - MicroPython refactor C1.2.2
 
 import machine
 import utime
@@ -44,6 +43,7 @@ button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
 
 led_on = False
 flame_thread = None
+tail_wagging = False  # global variable to track tail wagging status
 
 def tail_wag():
     for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
@@ -51,6 +51,8 @@ def tail_wag():
         utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
 
 def tail_wag_random():
+    global tail_wagging
+    tail_wagging = True
     count = 0
     while count < wag_count:
         count += 1
@@ -65,6 +67,8 @@ def tail_wag_random():
 
     pwm.duty_ns(MID)
     print("Tail in neutral position, waiting for next button press...")
+    tail_wagging = False  # set tail_wagging flag back to False
+
 
 def button_wag(pressed_button_pin):
     last_press_time = 0
@@ -97,9 +101,11 @@ def flame_effect():
     led.write()
 
 def button_pressed(pin):
-    global led_on, flame_thread
+    global led_on, flame_thread, tail_wagging
+    if tail_wagging:
+        return  # do nothing if tail wagging is in progress
     if led_on:
-        flame_thread = None  # stop any running threads
+        flame_thread = None
         led_on = False
     else:
         flame_thread = True
