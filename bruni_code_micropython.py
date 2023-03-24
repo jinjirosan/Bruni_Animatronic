@@ -6,63 +6,114 @@
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-0.3 (Alpha release!) - MicroPython refactor 0.1
+# bruni_code.py : v4-0.03 (Alpha release!) - MicroPython refactor C1.2
 
 import machine
-import time
+import utime
+import _thread
 import random
 import neopixel
-import _thread  # Import the _thread module for multi-threading
 
-def setup_digital_io(pin):
-    io = machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_UP)
-    return io
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
 
-def wag_tail(pwm):
-    neutral_angle = 90
-    angle_change = 53.13
-    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] + [random.uniform(neutral_angle - angle_change / 2, neutral_angle + angle_change / 2) for _ in range(5)]:
-        pwm.duty(int(angle / 180 * 1023))
-        time.sleep_ms(500 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 200)
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
 
 pwm = machine.PWM(machine.Pin(15))
-button_wag = setup_digital_io(16)
-led = machine.Pin(21, machine.Pin.OUT)
-button_led = setup_digital_io(20)
+pwm.freq(50)
+pwm.duty_ns(MID)
 
-# Set up the Flora NeoPixel v2
-num_pixels = 1
-neo_pixel_pin = 19
-pixels = neopixel.NeoPixel(machine.Pin(neo_pixel_pin), num_pixels)
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
 
-# Set up the button to activate the Flora NeoPixel v2
-button_neopixel = setup_digital_io(17)
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
 
-# Function to animate the NeoPixel with a blue-purple flame effect
-def animate_neopixel():
-    start_time = time.ticks_ms()
-    while time.ticks_ms() - start_time < 14000:
-        color = (random.randint(0, 30), 0, random.randint(100, 255))
-        pixels[0] = color
-        pixels.write()
-        time.sleep_ms(random.randint(50, 150))
+led_on = False
+flame_thread = None
 
-# Function to handle NeoPixel animation in a separate thread
-def neopixel_thread():
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
     while True:
-        if not button_neopixel.value():
-            _thread.start_new_thread(animate_neopixel, ())
-            time.sleep_ms(200)
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
 
-# Start the NeoPixel animation thread
-_thread.start_new_thread(neopixel_thread, ())
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+def button_pressed(pin):
+    global led_on, flame_thread
+    if led_on:
+        flame_thread = None
+        led_on = False
+    else:
+        flame_thread = True
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    _thread.start_new_thread(button_wag, (pin,))
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
 
 while True:
-    if not button_wag.value():
-        wag_tail(pwm)
-        time.sleep_ms(500)
-    if not button_led.value():
-        led.value(not led.value())
-        while not button_led.value():
-            time.sleep_ms(100)
-        time.sleep_ms(200)
+    utime.sleep(0.1)
