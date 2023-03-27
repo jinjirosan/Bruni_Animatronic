@@ -28,7 +28,7 @@ wait_range = (10, 50)       # the range of time to wait between tail wags
 
 LED_PIN = 19        # the pin used for the Neopixel LED
 NUM_PIXELS = 1      # the number of pixels in the LED strip
-COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)] # black, blue, purple, pink, magenta
 MIN_BRIGHTNESS = 50     # the minimum brightness level for the LED
 MAX_BRIGHTNESS = 255        # the minimum brightness level for the LED
 
