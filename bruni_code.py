@@ -7,7 +7,7 @@
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.3
+# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.4
 
 import machine
 import utime
@@ -88,9 +88,6 @@ def tail_wag_random():
     print("Tail in neutral position, waiting for next button press...")   # Print a message to indicate that the tail is now in the neutral position and waiting for the next button press
     tail_wagging = False  # Set the tail_wagging flag back to False to indicate that the tail is no longer wagging
 
-
-
-
 def button_wag(pressed_button_pin):
     last_press_time = 0     # Initialize the timestamp of the last button press to 0
     wag_count = 0           # Initialize the count of tail wags to 0
@@ -110,7 +107,6 @@ def button_wag(pressed_button_pin):
                 wag_count = 0                  # Reset the count of tail wags to 0
                 last_press_time = current_time  # Update the timestamp of the last button press to the current time
 
-
 def flame_effect():
     global led_on           # Access the global variable led_on
     if led_on:              # If the LED is on
@@ -124,8 +120,6 @@ def flame_effect():
         led.write()
         return 0.1          # Return a wait time of 0.1 seconds
 
-
-
 def button_pressed(pin):
     global led_on          # Access the global variable led_on
     current_time = utime.ticks_ms()    # Get the current timestamp in milliseconds
@@ -138,11 +132,6 @@ def button_pressed(pin):
             led_on = True       # Turn it on
         flame_effect()          # Call the flame_effect() function to update the LED strip accordingly
 
-
-
-led_on = False              # Initialize the LED state to be off
-flame_thread = None
-
 def button_wag_handler(pin):
     global wag_event        # Access the global variable wag_event
     wag_event = True        # Set the wag_event flag to True to indicate that the button has been pressed
@@ -150,7 +139,6 @@ def button_wag_handler(pin):
         _thread.start_new_thread(tail_wag_random, ())  # Start the tail_wag_random function in a new thread to wag the tail
 
 button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)   # Register the button_pressed function to handle the falling edge interrupt on the button LED pin
-
 button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)    # Register the button_wag_handler function to handle the falling edge interrupt on the button wag pin
 
 while True:
@@ -171,4 +159,3 @@ while True:
     wait_time = flame_effect()  # Call the flame_effect function to update the LED strip and get the wait time
     utime.sleep(wait_time)      # Wait for the specified amount of time
     utime.sleep(0.1)            # Add a small delay between iterations to avoid busy waiting
-
