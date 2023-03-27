@@ -7,12 +7,13 @@
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-0.5 (Beta) - refactor C1.2.8
+# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.0
 
 import machine
 import utime
 import random
 import neopixel
+import _thread 
 
 # Version A1 variables and setup
 MID = 1500000
@@ -123,12 +124,17 @@ def flame_effect():
 
 
 def button_pressed(pin):
-    global flame_event
+    global led_on  # Add led_on to the global variables
     current_time = utime.ticks_ms()
     if utime.ticks_diff(current_time, button_state.last_press_time) > debounce_time:
         print("Flame effect button pressed")
-        flame_event = True
         button_state.last_press_time = current_time
+        if led_on:
+            led_on = False
+        else:
+            led_on = True
+        flame_effect()  # Add this line to call the flame_effect function
+
 
 led_on = False
 flame_thread = None
@@ -136,6 +142,9 @@ flame_thread = None
 def button_wag_handler(pin):
     global wag_event
     wag_event = True
+    if not tail_wagging:
+        _thread.start_new_thread(tail_wag_random, ())  # Start the tail_wag_random in a new thread
+
 
 button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
 
