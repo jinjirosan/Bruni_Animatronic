@@ -7,7 +7,7 @@
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.0
+# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.2
 
 import machine
 import utime
@@ -15,43 +15,42 @@ import random
 import neopixel
 import _thread 
 
-# Version A1 variables and setup
-MID = 1500000
-MIN = 1000000
-MAX = 2000000
+# Variables
+MID = 1500000       # pulse duration for the servo's middle position
+MIN = 1000000       # pulse duration for the servo's minimum position
+MAX = 2000000       # pulse duration for the servo's maximum position
 
-neutral_angle = 90
-angle_change = 70.0
+neutral_angle = 90      # the angle for the servo's neutral position
+angle_change = 70.0     # the angle difference for each wag direction
 
-wag_count = 4
-wait_range = (10, 50)
+wag_count = 4       # the number of tail wags to perform
+wait_range = (10, 50)       # the range of time to wait between tail wags
 
-# Version B1 variables and setup
-LED_PIN = 19
-NUM_PIXELS = 1
+LED_PIN = 19        # the pin used for the Neopixel LED
+NUM_PIXELS = 1      # the number of pixels in the LED strip
 COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
-MIN_BRIGHTNESS = 50
-MAX_BRIGHTNESS = 255
+MIN_BRIGHTNESS = 50     # the minimum brightness level for the LED
+MAX_BRIGHTNESS = 255        # the minimum brightness level for the LED
 
-pwm = machine.PWM(machine.Pin(15))
-pwm.freq(50)
-pwm.duty_ns(MID)
+pwm = machine.PWM(machine.Pin(15))      # create a Pulse Width Modulation object for the servo control pin
+pwm.freq(50)        # set the PWM frequency to 50Hz
+pwm.duty_ns(MID)        # set the initial duty cycle to the middle position
 
-led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)       # create a NeoPixel object for the LED strip
 
-button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
-button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)       # create a Pin object for the wag button
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)       # create a Pin object for the LED button
 
-led_on = False
-flame_effect_running = False
+led_on = False      # a flag to indicate if the LED is currently on or off
+flame_effect_running = False        # a flag to indicate if the flame effect is currently running
 
 tail_wagging = False  # global variable to track tail wagging status
 
-wag_event = False
-flame_event = False
+wag_event = False       # a flag to indicate if the wag button has been pressed
+flame_event = False     # a flag to indicate if the LED button has been pressed
 
-debounce_time = 200
-last_press_time = 0
+debounce_time = 200     # the debounce time in milliseconds for button presses
+last_press_time = 0     # the timestamp of the last button press
 
 # Reset the neopixel LED to off at the start of the script
 led[0] = (0, 0, 0)
