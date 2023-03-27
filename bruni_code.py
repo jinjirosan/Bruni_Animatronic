@@ -49,7 +49,7 @@ tail_wagging = False  # global variable to track tail wagging status
 wag_event = False       # a flag to indicate if the wag button has been pressed
 flame_event = False     # a flag to indicate if the LED button has been pressed
 
-debounce_time = 200     # the debounce time in milliseconds for button presses
+debounce_time = 400     # the debounce time in milliseconds for button presses
 last_press_time = 0     # the timestamp of the last button press
 
 # Reset the neopixel LED to off at the start of the script
