@@ -1,0 +1,308 @@
+
+v1.7, this version works on button press with good enough range of movement on the servo
+
+from machine import Pin, PWM
+import utime
+import _thread
+
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+led = Pin(25, Pin.OUT)
+pwm = PWM(Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+
+def tail_wag():
+    neutral_angle = 90
+    angle_change = 70.0
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] + [int(angle) for angle in [neutral_angle - angle_change / 2, neutral_angle + angle_change / 2] * 3]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 3:
+                tail_wag()
+                wag_count += 1
+                last_press_time = current_time
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+
+button_wag_pin = Pin(16, Pin.IN, Pin.PULL_UP)
+while True:
+    if not button_wag_pin.value():
+        tail_wag()
+    else:
+        pwm.duty_ns(MID)
+
+---------------------------------------
+
+
+from machine import Pin, PWM
+import utime
+import _thread
+
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+led = Pin(25, Pin.OUT)
+pwm = PWM(Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+
+def tail_wag():
+    neutral_angle = 90
+    angle_change = 70.0
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] + [int(angle) for angle in [neutral_angle - angle_change / 2, neutral_angle + angle_change / 2] * 3]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.monotonic()
+            if current_time - last_press_time < 60 and wag_count < 3:
+                tail_wag()
+                wag_count += 1
+                last_press_time = current_time
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+
+button_wag_pin = Pin(16, Pin.IN, Pin.PULL_UP)
+while True:
+    if not button_wag_pin.value():
+        tail_wag()
+    else:
+        pwm.duty_ns(MID)
+
+
+---------------------------------------
+
+v1.8.1
+
+from machine import Pin, PWM
+import utime
+import _thread
+import random
+
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+led = Pin(25, Pin.OUT)
+pwm = PWM(Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+
+def tail_wag():
+    neutral_angle = 90
+    angle_change = 70.0
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] + [int(angle) for angle in [neutral_angle - angle_change / 2, neutral_angle + angle_change / 2] * 3]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+
+def button_wag(pressed_button_pin):
+    wag_count = 0
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if wag_count < 4:
+                tail_wag()
+                wag_count += 1
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                
+            print(f"Wag count: {wag_count}/4")
+            time_remaining = int(60 - (current_time - last_press_time))
+            print(f"Time remaining: {time_remaining}s")
+                
+        else:
+            pwm.duty_ns(MID)
+            wag_count = 0
+            last_press_time = utime.time()
+
+
+button_wag_pin = Pin(16, Pin.IN, Pin.PULL_UP)
+while True:
+    if not button_wag_pin.value():
+        tail_wag()
+        for i in range(3):
+            utime.sleep(random.uniform(0.1, 0.5) * 60)
+            tail_wag()
+        wag_count = 0
+        last_press_time = utime.time()
+    else:
+        pwm.duty_ns(MID)
+
+
+---------------------------------
+v1.9
+
+
+from machine import Pin, PWM
+import utime
+import _thread
+import random
+
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+led = Pin(25, Pin.OUT)
+pwm = PWM(Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+neutral_angle = 90
+angle_change = 70.0
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    wag_count = 0
+    while wag_count < 4:
+        wag_count += 1
+        print("Tail wagging {}/4".format(wag_count))
+        tail_wag()
+        if wag_count == 4:
+            break
+        else:
+            wait_time = random.randint(10, 50)
+            print("Waiting for {} seconds until next tail wag...".format(wait_time))
+            utime.sleep(wait_time)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/4")
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+
+button_wag_pin = Pin(16, Pin.IN, Pin.PULL_UP)
+while True:
+    if not button_wag_pin.value():
+        button_wag(button_wag_pin)
+    else:
+        pwm.duty_ns(MID)
+
+
+
+
+---------------------------------
+
+v1.9.1 - tail wagging function operational. Tested + verified
+
+
+from machine import Pin, PWM
+import utime
+import _thread
+import random
+
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+led = Pin(25, Pin.OUT)
+pwm = PWM(Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+
+button_wag_pin = Pin(16, Pin.IN, Pin.PULL_UP)
+while True:
+    if not button_wag_pin.value():
+        button_wag(button_wag_pin)
+    else:
+        pwm.duty_ns(MID)
+
+
+
+
+
+

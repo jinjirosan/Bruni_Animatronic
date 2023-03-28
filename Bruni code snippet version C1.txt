@@ -1,0 +1,1592 @@
+
+Version C1 - merged code for tailwag and neopixel
+
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+def button_pressed(pin):
+    global led_on, flame_thread
+    if led_on:
+        flame_thread = None
+        led_on = False
+    else:
+        flame_thread = True
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+led_on = False
+flame_thread = None
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+def button_wag_handler(pin):
+    _thread.start_new_thread(button_wag, (pin,))
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+while True:
+    utime.sleep(0.1)
+
+-------------
+
+Version C1 .1
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+# Global flag to track if a thread is running
+thread_running = False
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+
+def button_wag(pressed_button_pin):
+    global thread_running
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1 and not thread_running:
+                thread_running = True
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+                thread_running = False
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread, thread_running
+    thread_running = True
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+    thread_running = False
+
+def button_pressed(pin):
+    global led_on, flame_thread, thread_running
+    if led_on and not thread_running:
+        flame_thread = None
+        led_on = False
+    elif not led_on and not thread_running:
+        flame_thread = True
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+def button_wag_handler(pin):
+    if not thread_running:
+        _thread.start_new_thread(button_wag, (pin,))
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+while True:
+    utime.sleep(0.1)
+
+
+
+--------------------
+
+Version C1 .2
+
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_thread = None
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+def button_pressed(pin):
+    global led_on, flame_thread
+    if led_on:
+        flame_thread = None
+        led_on = False
+    else:
+        flame_thread = True
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    _thread.start_new_thread(button_wag, (pin,))
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+while True:
+    utime.sleep(0.1)
+
+
+--------
+Version C1 .3
+
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+import rp2
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_thread = None
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+# Define neopixel function
+def neopixel_effect():
+    global led_on, neopixel_thread
+    while neopixel_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+# Define button press handler for neopixel button
+def button_pressed_neopixel(pin):
+    global led_on, neopixel_thread
+    if led_on:
+        neopixel_thread = None
+        led_on = False
+    else:
+        neopixel_thread = True
+        _thread.start_new_thread(neopixel_effect, ())
+        led_on = True
+
+# Set up interrupts for neopixel button
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed_neopixel)
+
+def button_pressed(pin):
+    global led_on, flame_thread
+    if led_on:
+        flame_thread = None
+        led_on = False
+    else:
+        flame_thread = True
+        rp2.run_set()
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    _thread.start_new_thread(button_wag, (pin,))
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+while True:
+    utime.sleep(0.1)
+
+-------------------
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-0.03 (Alpha) - refactor C1.2.3
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_thread = None
+tail_wagging = False  # global variable to track tail wagging status
+timer_running = False
+
+def check_button_pressed(timer):
+    global timer_running
+    if button_wag_pin.value() == 0:
+        button_pressed(button_wag_pin)
+        timer_running = False
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    global timer_running
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    global timer_running
+    timer_running = True
+    timer = machine.Timer(1)
+    timer.init(period=100, mode=machine.Timer.PERIODIC, callback=check_button_pressed)
+    while timer_running:
+        utime.sleep(0.1)
+    timer.deinit()
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+def button_pressed(pin):
+    global led_on, flame_thread
+    if led_on:
+        flame_thread = None
+        led_on = False
+    else:
+        flame_thread = True
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    _thread.start_new_thread(button_wag, (pin,))
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+while True:
+    utime.sleep(0.1)
+
+
+-----------------------
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-0.03 (Alpha) - refactor C1.2.4
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+import queue
+
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_thread = None
+tail_wagging = False  # global variable to track tail wagging status
+
+event_queue = queue.Queue()
+TAIL_WAG = "tail_wag"
+FLAME_EFFECT = "flame_effect"
+
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    global tail_wagging
+    tail_wagging = True
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    tail_wagging = False  # set tail_wagging flag back to False
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+def button_pressed(pin):
+    global led_on, tail_wagging
+    if tail_wagging:
+        return  # do nothing if tail wagging is in progress
+    if led_on:
+        led_on = False
+    else:
+        event_queue.put(FLAME_EFFECT)
+        led_on = True
+
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    event_queue.put(TAIL_WAG)
+
+def process_events():
+    global tail_wagging, led_on
+    while True:
+        event = event_queue.get()
+        if event == TAIL_WAG:
+            if not tail_wagging:
+                tail_wagging = True
+                tail_wag_random()
+                tail_wagging = False
+        elif event == FLAME_EFFECT:
+            if led_on:
+                led_on = False
+                flame_thread = None
+            else:
+                led_on = True
+                flame_effect()
+        utime.sleep(0.1)
+
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+# Start the process_events function in a separate thread
+_thread.start_new_thread(process_events, ())
+
+while True:
+    utime.sleep(0.1)
+
+
+
+------------------------
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-0.03 (Alpha) - refactor C1.2.5
+
+import machine
+import utime
+import _thread
+import random
+import neopixel
+
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_thread = None
+tail_wagging = False  # global variable to track tail wagging status
+
+event_queue = []
+TAIL_WAG = "tail_wag"
+FLAME_EFFECT = "flame_effect"
+
+def tail_wag():
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    global tail_wagging
+    tail_wagging = True
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    tail_wagging = False  # set tail_wagging flag back to False
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        utime.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+def button_pressed(pin):
+    global led_on, tail_wagging
+    if tail_wagging:
+        return  # do nothing if tail wagging is in progress
+    if led_on:
+        led_on = False
+    else:
+        event_queue.append(FLAME_EFFECT)
+        led_on = True
+
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    event_queue.append(TAIL_WAG)
+
+def process_events():
+    global tail_wagging, led_on
+    while True:
+        if event_queue:  # Check if the queue has any events
+            event = event_queue.pop(0)  # Remove the first event from the queue
+            if event == TAIL_WAG:
+                if not tail_wagging:
+                    tail_wagging = True
+                    tail_wag_random()
+                    tail_wagging = False
+            elif event == FLAME_EFFECT:
+                if led_on:
+                    led_on = False
+                    flame_thread = None
+                else:
+                    led_on = True
+                    flame_effect()
+        utime.sleep(0.1)
+
+
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+# Start the process_events function in a separate thread
+_thread.start_new_thread(process_events, ())
+
+while True:
+    utime.sleep(0.1)
+
+
+
+---------------------
+
+GPT-4 where we left things on 20230326
+
+
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-0.03 (Alpha) - refactor C1.2.7
+
+import machine
+import utime
+import random
+import neopixel
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_time = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_effect_running = False
+
+tail_wagging = False  # global variable to track tail wagging status
+
+wag_event = False
+flame_event = False
+
+debounce_time = 200
+last_press_time = 0
+
+# Reset the neopixel LED to off at the start of the script
+led[0] = (0, 0, 0)
+led.write()
+
+class ButtonState:
+    def __init__(self):
+        self.last_press_time = 0
+
+button_state = ButtonState()
+
+def tail_wag():
+    print("Starting tail wagging")
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    global tail_wagging
+    tail_wagging = True
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait = random.randint(*wait_time)
+            print("Waiting for {} seconds until next tail wag...".format(wait))
+            utime.sleep(wait)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    tail_wagging = False  # set tail_wagging flag back to False
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global led_on
+    if led_on:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        return random.uniform(0.05, 0.2)
+    else:
+        led[0] = (0, 0, 0)
+        led.write()
+        return 0.1
+
+
+def button_pressed(pin):
+    global flame_event
+    current_time = utime.ticks_ms()
+    if utime.ticks_diff(current_time, button_state.last_press_time) > debounce_time:
+        print("Flame effect button pressed")
+        flame_event = True
+        button_state.last_press_time = current_time
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    global wag_event
+    wag_event = True
+
+while True:
+    if wag_event:
+        wag_event = False
+        if not tail_wagging:
+            tail_wagging = True
+            tail_wag_random()
+            tail_wagging = False
+
+    if flame_event:
+        flame_event = False
+        if led_on:
+            led_on = False
+        else:
+            led_on = True
+
+    wait_time = flame_effect()
+    utime.sleep(wait_time)
+
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+
+while True:
+    utime.sleep(0.1)
+
+---------------------------
+
+Best working version 20230327
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-0.5 (Beta) - refactor C1.2.8
+
+import machine
+import utime
+import random
+import neopixel
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_range = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False
+flame_effect_running = False
+
+tail_wagging = False  # global variable to track tail wagging status
+
+wag_event = False
+flame_event = False
+
+debounce_time = 200
+last_press_time = 0
+
+# Reset the neopixel LED to off at the start of the script
+led[0] = (0, 0, 0)
+led.write()
+
+class ButtonState:
+    def __init__(self):
+        self.last_press_time = 0
+
+button_state = ButtonState()
+
+def tail_wag():
+    print("Starting tail wagging")
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    global tail_wagging
+    tail_wagging = True
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait_duration = random.randint(*wait_range) 
+            print("Waiting for {} seconds until next tail wag...".format(wait_duration))
+            utime.sleep(wait_duration)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    tail_wagging = False  # set tail_wagging flag back to False
+
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global led_on
+    if led_on:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        return random.uniform(0.05, 0.2)
+    else:
+        led[0] = (0, 0, 0)
+        led.write()
+        return 0.1
+
+
+def button_pressed(pin):
+    global flame_event
+    current_time = utime.ticks_ms()
+    if utime.ticks_diff(current_time, button_state.last_press_time) > debounce_time:
+        print("Flame effect button pressed")
+        flame_event = True
+        button_state.last_press_time = current_time
+
+led_on = False
+flame_thread = None
+
+def button_wag_handler(pin):
+    global wag_event
+    wag_event = True
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+while True:
+    if wag_event:
+        wag_event = False
+        if not tail_wagging:
+            tail_wagging = True
+            tail_wag_random()
+            tail_wagging = False
+
+    if flame_event:
+        flame_event = False
+        if led_on:
+            led_on = False
+        else:
+            led_on = True
+
+    wait_time = flame_effect()
+    utime.sleep(wait_time)
+    utime.sleep(0.1)
+
+---------------------------
+
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.1
+
+import machine
+import utime
+import random
+import neopixel
+import _thread 
+
+# Version A1 variables and setup
+MID = 1500000                  # Duty cycle for 1.5ms pulse
+MIN = 1000000                  # Minimum duty cycle for 1ms pulse
+MAX = 2000000                  # Maximum duty cycle for 2ms pulse
+
+neutral_angle = 90             # Neutral angle of the servo
+angle_change = 70.0            # Angle change for tail wagging
+
+wag_count = 4                  # Number of tail wags to perform
+wait_range = (10, 50)          # Range of wait time between tail wags, in seconds
+
+# Version B1 variables and setup
+LED_PIN = 19                   # Pin for the Neopixel LED
+NUM_PIXELS = 1                 # Number of pixels in the LED
+COLORS = [(0, 0, 0),           # List of colors for the LED flame effect
+          (0x40, 0x00, 0xff),
+          (0x80, 0x00, 0xff),
+          (0xc0, 0x00, 0xff),
+          (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50            # Minimum brightness level for the LED flame effect
+MAX_BRIGHTNESS = 255           # Maximum brightness level for the LED flame effect
+
+# Create PWM object for controlling servo motor
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)                   # Set PWM frequency to 50Hz
+pwm.duty_ns(MID)               # Set initial duty cycle to neutral angle
+
+# Create Neopixel object for controlling LED
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+# Create button objects for tail wag and LED flame effect
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+led_on = False                 # Flag to track if the LED is on
+flame_effect_running = False   # Flag to track if the LED flame effect is running
+
+tail_wagging = False           # Global variable to track tail wagging status
+wag_event = False              # Flag to indicate tail wag button press
+flame_event = False            # Flag to indicate LED flame effect button press
+flame_thread = None            # Thread object for LED flame effect
+
+debounce_time = 200            # Time for button debounce
+last_press_time = 0            # Time of last button press
+
+# Reset the Neopixel LED to off at the start of the script
+led[0] = (0, 0, 0)
+led.write()
+
+class ButtonState:
+    def __init__(self):
+        self.last_press_time = 0
+
+button_state = ButtonState()
+
+--------------------
+
+Including a battery monitor function -- EXPERIMENTEEL
+needs ADC for some rreason. Need to look at how to connect the Batt now.
+
+
+# Bruni shoulder pluche - animatronic
+#
+# hardware platform  : Pimoroni Pico LiPo
+# Animatronic driver : Tower Pro SG92R
+# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# Codebase           : MicroPython v1.19.1
+#
+# (2023) JinjiroSan
+#
+# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.2
+
+import machine
+import utime
+import random
+import neopixel
+import _thread 
+
+# Version A1 variables and setup
+MID = 1500000
+MIN = 1000000
+MAX = 2000000
+
+neutral_angle = 90
+angle_change = 70.0
+
+wag_count = 4
+wait_range = (10, 50)
+
+# Version B1 variables and setup
+LED_PIN = 19
+NUM_PIXELS = 1
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+pwm = machine.PWM(machine.Pin(15))
+pwm.freq(50)
+pwm.duty_ns(MID)
+
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+button_wag_pin = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_UP)
+button_led_pin = machine.Pin(17, machine.Pin.IN, machine.Pin.PULL_UP)
+
+# Add a new button for battery check
+button_battery_pin = machine.Pin(20, machine.Pin.IN, machine.Pin.PULL_UP)
+
+# Add ADC for battery voltage measurement
+adc = machine.ADC(machine.Pin(28))
+conversion_factor = 3.3 / 65535
+
+led_on = False
+flame_effect_running = False
+
+tail_wagging = False  # global variable to track tail wagging status
+
+wag_event = False
+flame_event = False
+flame_thread = None
+
+debounce_time = 200
+last_press_time = 0
+
+# Reset the neopixel LED to off at the start of the script
+led[0] = (0, 0, 0)
+led.write()
+
+class ButtonState:
+    def __init__(self):
+        self.last_press_time = 0
+
+button_state = ButtonState()
+
+def tail_wag():
+    print("Starting tail wagging")
+    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
+        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))
+        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)
+
+def tail_wag_random():
+    global tail_wagging
+    tail_wagging = True
+    count = 0
+    while count < wag_count:
+        count += 1
+        print("Tail wagging {}/{}".format(count, wag_count))
+        tail_wag()
+        if count == wag_count:
+            break
+        else:
+            wait_duration = random.randint(*wait_range) 
+            print("Waiting for {} seconds until next tail wag...".format(wait_duration))
+            utime.sleep(wait_duration)
+
+    pwm.duty_ns(MID)
+    print("Tail in neutral position, waiting for next button press...")
+    tail_wagging = False  # set tail_wagging flag back to False
+
+
+
+def button_wag(pressed_button_pin):
+    last_press_time = 0
+    wag_count = 0
+
+    while True:
+        if not pressed_button_pin.value():
+            current_time = utime.time()
+            if current_time - last_press_time < 60 and wag_count < 1:
+                tail_wag()
+                wag_count += 1
+                print("Tail wagging 1/{}".format(wag_count))
+                tail_wag_random()
+                last_press_time = current_time
+                wag_count = 0
+
+            elif current_time - last_press_time >= 60:
+                wag_count = 0
+                last_press_time = current_time
+
+def flame_effect():
+    global led_on
+    if led_on:
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        return random.uniform(0.05, 0.2)
+    else:
+        led[0] = (0, 0, 0)
+        led.write()
+        return 0.1
+
+
+def button_pressed(pin):
+    global led_on  # Add led_on to the global variables
+    current_time = utime.ticks_ms()
+    if utime.ticks_diff(current_time, button_state.last_press_time) > debounce_time:
+        print("Flame effect button pressed")
+        button_state.last_press_time = current_time
+        if led_on:
+            led_on = False
+        else:
+            led_on = True
+        flame_effect()  # Add this line to call the flame_effect function
+
+
+
+def button_wag_handler(pin):
+    global wag_event
+    wag_event = True
+    if not tail_wagging:
+        _thread.start_new_thread(tail_wag_random, ())  # Start the tail_wag_random in a new thread
+
+
+# Battery check function
+def battery_check():
+    voltage = adc.read_u16() * conversion_factor
+    percentage = (voltage - 3.0) / (4.2 - 3.0) * 100  # Assuming 3.0V is 0% and 4.2V is 100%
+    if percentage > 100:
+        percentage = 100
+    if percentage < 0:
+        percentage = 0
+
+    print("Battery voltage: {:.2f} V, capacity: {:.0f}%".format(voltage, percentage))
+
+    blink_count = int(percentage / 25)
+    if blink_count == 0:
+        blink_count = 1
+
+    for _ in range(blink_count):
+        led[0] = (255, 0, 0)
+        led.write()
+        utime.sleep(0.5)
+        led[0] = (0, 0, 0)
+        led.write()
+        utime.sleep(0.5)
+
+# Button press handling for battery check
+class BatteryButtonState:
+    def __init__(self):
+        self.last_press_time = 0
+        self.press_count = 0
+
+battery_button_state = BatteryButtonState()
+
+def button_battery_handler(pin):
+    current_time = utime.ticks_ms()
+    if utime.ticks_diff(current_time, battery_button_state.last_press_time) > debounce_time:
+        battery_button_state.press_count += 1
+        battery_button_state.last_press_time = current_time
+
+
+button_led_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+button_wag_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_wag_handler)
+
+button_battery_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_battery_handler)
+
+while True:
+    if wag_event:
+        wag_event = False
+        if not tail_wagging:
+            tail_wagging = True
+            tail_wag_random()
+            tail_wagging = False
+
+    if flame_event:
+        flame_event = False
+        if led_on:
+            led_on = False
+        else:
+            led_on = True
+
+    if battery_button_state.press_count == 2:
+        battery_button_state.press_count = 0
+        battery_check()
+
+    wait_time = flame_effect()
+    utime.sleep(wait_time)
+    utime.sleep(0.1)
+
+
+
+
+

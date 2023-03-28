@@ -1,0 +1,129 @@
+v0.1
+
+
+import machine
+import neopixel
+import random
+import time
+import _thread
+
+# Define the pin number for the neopixel LED
+LED_PIN = 19
+
+# Define the number of LED pixels in the strip
+NUM_PIXELS = 1
+
+# Define the colors for the flame effect
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+
+# Define the minimum and maximum brightness for the flame effect
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+# Create an instance of the neopixel LED
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+# Define a function to generate the flame effect
+def flame_effect():
+    while True:
+        # Set the LED to a random color and brightness
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        
+        # Wait for a random interval before changing the color and brightness again
+        time.sleep(random.uniform(0.05, 0.2))
+
+# Define the pin number for the button
+BUTTON_PIN = 17
+
+# Create an instance of the button
+button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
+
+# Define a variable to keep track of the LED state
+led_on = False
+
+# Define a function to handle the button press
+def button_pressed(pin):
+    global led_on
+    if led_on:
+        # Turn off the LED
+        led[0] = (0, 0, 0)
+        led.write()
+        led_on = False
+    else:
+        # Start the flame effect
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+# Attach the button press handler to the button
+button.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
+--------------------
+v1.0 button press on/off works. LED is blue-purple flame simulation
+
+
+import machine
+import neopixel
+import random
+import time
+import _thread
+
+# Define the pin number for the neopixel LED
+LED_PIN = 19
+
+# Define the number of LED pixels in the strip
+NUM_PIXELS = 1
+
+# Define the colors for the flame effect
+COLORS = [(0, 0, 0), (0x40, 0x00, 0xff), (0x80, 0x00, 0xff), (0xc0, 0x00, 0xff), (0xff, 0x00, 0xff)]
+
+# Define the minimum and maximum brightness for the flame effect
+MIN_BRIGHTNESS = 50
+MAX_BRIGHTNESS = 255
+
+# Create an instance of the neopixel LED
+led = neopixel.NeoPixel(machine.Pin(LED_PIN), NUM_PIXELS)
+
+# Define a function to generate the flame effect
+def flame_effect():
+    global flame_thread
+    while flame_thread:
+        # Set the LED to a random color and brightness
+        color = random.choice(COLORS)
+        brightness = random.randint(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        led[0] = tuple(map(lambda x: int(x * brightness / 255), color))
+        led.write()
+        
+        # Wait for a random interval before changing the color and brightness again
+        time.sleep(random.uniform(0.05, 0.2))
+    led[0] = (0, 0, 0)
+    led.write()
+
+# Define the pin number for the button
+BUTTON_PIN = 17
+
+# Create an instance of the button
+button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
+
+# Define a variable to keep track of the LED state
+led_on = False
+flame_thread = None
+
+# Define a function to handle the button press
+def button_pressed(pin):
+    global led_on, flame_thread
+    if led_on:
+        # Turn off the LED
+        flame_thread = None
+        led_on = False
+    else:
+        # Start the flame effect
+        flame_thread = True
+        _thread.start_new_thread(flame_effect, ())
+        led_on = True
+
+# Attach the button press handler to the button
+button.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_pressed)
+
