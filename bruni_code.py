@@ -7,7 +7,7 @@
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-1.1 (pre-release) - refactor C2.0.5
+# bruni_code.py : v4-1.1 (pre-release) - refactor C2.0.6
 
 import machine
 import utime
@@ -56,11 +56,11 @@ last_press_time = 0     # the timestamp of the last button press
 led[0] = (0, 0, 0)
 led.write()
 
-class ButtonState:
-    def __init__(self):
-        self.last_press_time = 0
+class ButtonState:   # class to store the state of a button
+    def __init__(self):   # The __init__ method is the constructor for the ButtonState class
+        self.last_press_time = 0   # Initialize the last_press_time attribute to store the timestamp of the last button press event
 
-button_state = ButtonState()
+button_state = ButtonState()   # Create a new instance of ButtonState and assign it to the variable button_state
 
 def tail_wag():
     # First left wag
