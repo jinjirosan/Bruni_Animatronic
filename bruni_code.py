@@ -7,7 +7,7 @@
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-1.0 (pre-release) - refactor C2.0.4
+# bruni_code.py : v4-1.1 (pre-release) - refactor C2.0.5
 
 import machine
 import utime
@@ -20,11 +20,11 @@ MID = 1500000       # pulse duration for the servo's middle position
 MIN = 1000000       # pulse duration for the servo's minimum position
 MAX = 2000000       # pulse duration for the servo's maximum position
 
-neutral_angle = 90      # the angle for the servo's neutral position
-angle_change = 70.0     # the angle difference for each wag direction
+neutral_angle = 2      # the angle for the servo's neutral position
+angle_change = 95.0     # the angle difference for each wag direction
 
-wag_count = 4       # the number of tail wags to perform
-wait_range = (10, 50)       # the range of time to wait between tail wags
+wag_count = 5       # the number of tail wags to perform
+wait_range = (4, 20)       # the range of time to wait between tail wags
 
 LED_PIN = 19        # the pin used for the Neopixel LED
 NUM_PIXELS = 1      # the number of pixels in the LED strip
@@ -63,11 +63,35 @@ class ButtonState:
 button_state = ButtonState()
 
 def tail_wag():
-    # Iterate over the three positions of the servo: left, right, and center
-    for angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle]:
-        pwm.duty_ns(int(angle / 180 * (MAX - MIN) / 2 + MID))    # Calculate the PWM duty cycle for the current angle and set it for the servo
-        utime.sleep(0.5 if angle in [neutral_angle - angle_change, neutral_angle + angle_change, neutral_angle] else 0.2)    # Wait for 0.5 seconds for left and right positions, and 0.2 seconds for center position to create a smooth animation
+    # First left wag
+    angle1 = neutral_angle - angle_change  # Calculate the angle for the first left wag
+    pwm.duty_ns(int(angle1 / 180 * (MAX - MIN) / 2 + MID))  # Set the servo position to the first left wag angle
+    print(f"First left wag angle: {angle1}")  # Display the calculated angle for the first left wag
+    utime.sleep(0.5)  # Wait for 0.5 seconds
 
+    # First right wag
+    angle2 = neutral_angle + angle_change  # Calculate the angle for the first right wag
+    pwm.duty_ns(int(angle2 / 180 * (MAX - MIN) / 2 + MID))  # Set the servo position to the first right wag angle
+    print(f"First right wag angle: {angle2}")  # Display the calculated angle for the first right wag
+    utime.sleep(0.5)  # Wait for 0.5 seconds
+
+    # Second left wag with a random angle in the opposite direction
+    random_angle_change2 = random.uniform(angle_change * 0.5, angle_change * 1.5)  # Calculate a random angle change for the second wag
+    angle3 = neutral_angle + random_angle_change2  # Calculate the angle for the second left wag in the opposite direction
+    pwm.duty_ns(int(angle3 / 180 * (MAX - MIN) / 2 + MID))  # Set the servo position to the second left wag angle
+    print(f"Second left wag angle: {angle3}")  # Display the calculated angle for the second left wag
+    utime.sleep(0.5)  # Wait for 0.5 seconds
+
+    # Second right wag with a random angle in the opposite direction, maintaining the same angle difference
+    angle4 = neutral_angle - random_angle_change2  # Calculate the angle for the second right wag in the opposite direction, maintaining the same angle difference
+    pwm.duty_ns(int(angle4 / 180 * (MAX - MIN) / 2 + MID))  # Set the servo position to the second right wag angle
+    print(f"Second right wag angle: {angle4}")  # Display the calculated angle for the second right wag
+    utime.sleep(0.5)  # Wait for 0.5 seconds
+
+    # Back to center
+    pwm.duty_ns(MID)  # Set the servo position to the center
+    print("Back to center")  # Display that the servo is back to the center position
+    utime.sleep(0.2)  # Wait for 0.2 seconds
 
 def tail_wag_random():
     global tail_wagging
@@ -159,3 +183,4 @@ while True:
     wait_time = flame_effect()  # Call the flame_effect function to update the LED strip and get the wait time
     utime.sleep(wait_time)      # Wait for the specified amount of time
     utime.sleep(0.1)            # Add a small delay between iterations to avoid busy waiting
+
