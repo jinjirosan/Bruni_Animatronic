@@ -1,13 +1,21 @@
+
+#    ___                  _ 
+#   / __\_ __ _   _ _ __ (_)
+#  /__\// '__| | | | '_ \| |
+# / \/  \ |  | |_| | | | | |
+# \_____/_|   \__,_|_| |_|_|
+#
 # Bruni shoulder pluche - animatronic
 #
 # hardware platform  : Pimoroni Pico LiPo
 # Animatronic driver : Tower Pro SG92R
-# LEDs               : Flora Neopixel + kitelight bright EL-Wire
+# LEDs               : Flora Neopixel V2
+# Power              : Galleon 3.7v - 400 mAh LiPo (hardcase)
 # Codebase           : MicroPython v1.19.1
 #
 # (2023) JinjiroSan
 #
-# bruni_code.py : v4-1.1 (pre-release) - refactor C2.0.6
+# bruni_code.py : v4-1.1 (pre-release) - refactor C2.0.7
 
 import machine
 import utime
