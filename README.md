@@ -10,6 +10,8 @@ I wanted to create an animatronic shoulder plushie of Bruni, the fire-breathing 
 
 
 The main coding challenge was to have the flame and tailwagging functions to work fully independent on the Pimoroni Pico LiPo board so I could switch the flame on or off while the tailwag routine was still running. You see in the code that the routine is a longer running sequence when the button is pressed. Coding is more of a hobby than profession so I learned quite a lot here :)
+
+
 The project was full of 'firsts' like designing a flame that fits Bruni's appearance, CNC-ing it out of plexiglass, designing and fabricating the tail components.
 
 ## hardware platform (v1.1-2023/04 for codebase v4-x.x)
