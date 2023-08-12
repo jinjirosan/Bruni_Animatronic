@@ -89,7 +89,7 @@ Finally, the final piece is adding the heart to Bruni.
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1681-inserting-heart.jpeg)
 ###### --> image: Inserting Bruni logicboard
 
-This is how Bruni can be easily re-charged
+This is how Bruni can be easily re-charged. The 400mAh LiPo is holding up nicely for a day at the park although I do recharge for the evening fireworks/drone show.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1725-charging-bruni.jpeg)
 ###### --> image: Charging Bruni
