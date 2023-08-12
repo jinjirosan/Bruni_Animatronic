@@ -63,15 +63,15 @@ The custom designed and CNC'd flame from transparent plexiglass, the custom made
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1635-flame-components.jpeg)
 ###### --> image: flame components breakdown
 
-Attached the flame to Bruni. No glue needed, the bracket holds the flame tight. After two Disney trips, the flame is still securely fastened.
-
-![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1679-flame-attached.jpeg)
-###### --> image: flame attached
-
 Testing the flame function
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1634_MOV-flame-test.gif)
 ###### --> image: Flame test
+
+Attached the flame to Bruni. No glue needed, the bracket holds the flame tight. After two Disney trips, the flame is still securely fastened.
+
+![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1679-flame-attached.jpeg)
+###### --> image: flame attached
 
 The animatronic tail goes in, it is a very tight fit. The bottom plate is not yet attached to the servo so I have a bit more wiggle room. Next is adding the stuffing back to fill up the tail.
 
