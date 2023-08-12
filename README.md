@@ -33,17 +33,17 @@ First off, an overview of the components used. You see the EL-Wire included here
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1705-components.jpeg)
 ###### --> image: components
 
-Little bit of a nervous moment cutting Bruni open to be able to insert all the components. I've sewn in a piece of velcro so I can still cahrge the LiPo and work on Bruni's components.
+Little bit of a nervous moment cutting Bruni open to be able to insert all the components. I've sewn in a piece of velcro so I can still charge the LiPo and work on Bruni's components.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1643-velcro.jpeg)
 ###### --> image: Create an opening to get the animatronic components in and sew in velcro
 
-I've swen in a strong magnet inside Bruni. The 'plate' that Bruni sits on is an old plastic card with two supermagnets glued to it and encased in soft fabric.
+I've sewn in a strong magnet inside Bruni. The 'plate' that Bruni sits on is an old plastic card with two supermagnets glued to it and encased in soft fabric.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1644-magnet.jpeg)
 ###### --> image: Add a strong magnet to keep Bruni in-place on my shoulder
 
-I've made the original version of the tail wagging motion bu found that the round 3D printed sections were rubbing the top/bottom of Bruni's skin deforming the tail's shape. So I drew new ones. On the right the original tail version, on the left the 2.0 version. The sleeker 3D printed sections fit Bruni better
+I've made the original version of the tail wagging motion but found that the round 3D printed sections were rubbing the top/bottom of Bruni's skin deforming the tail's shape. So I drew new ones. On the right the original tail version, on the left the 2.0 version. The sleeker 3D printed sections fit Bruni better.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1675-tail-versions.jpeg)
 ###### --> image: 1.0 right, 2.0 left
@@ -70,15 +70,15 @@ Attached the flame to Bruni. No glue needed, the bracket holds the flame tight. 
 
 Testing the flame function
 
-![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1634_MOV-flame-test)
+![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1634_MOV-flame-test.gif)
 ###### --> image: Flame test
 
-The animatronic tail goes in, it is a very tight fit. Next is adding the stuffing back to fill up the tail.
+The animatronic tail goes in, it is a very tight fit. The bottom plate is not yet attached to the servo so I have a bit more wiggle room. Next is adding the stuffing back to fill up the tail.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1677-inserting-tail.jpeg)
 ###### --> image: Inserting tail components
 
-Finally, the final piece is adding the heart to Bruni
+Finally, the final piece is adding the heart to Bruni.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1681-inserting-heart.jpeg)
 ###### --> image: inserting Bruni logicboard
