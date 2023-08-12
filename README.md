@@ -36,7 +36,7 @@ A not-so-short impression of the build process going from 'just' the pluche anim
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1644-magnet.jpeg)
 ###### --> image: Add a strong magnet to keep Bruni in-place on my shoulder
 
-![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1675-tail-vesions.jpeg)
+![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1675-tail-versions.jpeg)
 ###### --> image: on the right the original tail version, on the left the 2.0 version. This one has sleeker 3D printed sections to fit Bruni better
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1571_MOV-tailwag-test.gif)
