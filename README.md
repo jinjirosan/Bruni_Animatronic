@@ -63,7 +63,7 @@ The custom designed and CNC'd flame from transparent plexiglass, the custom made
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1635-flame-components.jpeg)
 ###### --> image: flame components breakdown
 
-Testing the flame function
+Testing the flame function, it is bright in full darkness, maybe I'll add a lightsensor to compensate.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1634_MOV-flame-test.gif)
 ###### --> image: Flame test
