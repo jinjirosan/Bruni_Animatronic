@@ -1,12 +1,16 @@
 # Bruni Animatronic
 
-Last time I was at Disneyland Paris and saw various Disney and Pixar characters used as shoulder plushies. They were so cute and popular that they were sold out by the time I got to the gift shop. Inspired by Disney's Imagineers and animatronic artists, I decided to buy one online and make it totally unique for our next trip to Disney. 
+Last time I was at Disneyland Paris and saw various Disney and Pixar characters used as shoulder plushies. They were so cute and popular that they were sold out by the time I got to the gift shop. Inspired by Disney's Imagineers and animatronic artists, I decided to buy a plushie online and make it totally unique for our next trip to Disney. 
 
 
-I wanted to create an animatronic shoulder plushie of Bruni, the fire-breathing salamander from Frozen. With the help of a Pimoroni Pico LiPo, Tower Pro SG92R servo, Flora Neopixel, and kitelight bright EL-Wire, I was able to bring Bruni to life. I used MicroPython v1.19.1 to code the movements and light effects, and now Bruni is ready to accompany us on our next Disney adventure.
+I wanted to create an animatronic shoulder plushie of Bruni, the fire-breathing salamander from Frozen. With the help of a Pimoroni Pico LiPo, Tower Pro SG92R servo, Flora Neopixel, and kitelight bright EL-Wire, I was able to bring Bruni to life with 'breathing fire' and wagging his tail. I used MicroPython v1.19.1 to code the movements and light effects, and now Bruni is ready to accompany us on our next Disney adventure.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1683.jpeg)
 ###### --> image: Bruni
+
+
+The main coding challenge was to have the flame and tailwagging functions to work fully independent on the Pimoroni Pico LiPo board so I could switch the flame on or off while the tailwag routine was still running. You see in the code that the routine is a longer running sequence when the button is pressed. Coding is more of a hobby than profession so I learned quite a lot here :)
+The project was full of 'firsts' like designing a flame that fits Bruni's appearance, CNC-ing it out of plexiglass, designing and fabricating the tail components.
 
 ## hardware platform (v1.1-2023/04 for codebase v4-x.x)
 - Pimoroni Pico Lipo 4Mb board
