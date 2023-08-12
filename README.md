@@ -26,36 +26,57 @@ I wanted to create an animatronic shoulder plushie of Bruni, the fire-breathing 
 ## Build process
 
 A not-so-short impression of the build process going from 'just' the pluche animal to the animatronic version.
+First off, an overview of the components used. You see the EL-Wire included here however I have not yet integrated this on Bruni's back. I was thinking to outline his purple markings but found it challenging to integrate. So giving it some more thought.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1705-components.jpeg)
 ###### --> image: components
 
+Little bit of a nervous moment cutting Bruni open to be able to insert all the components. I've sewn in a piece of velcro so I can still cahrge the LiPo and work on Bruni's components.
+
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1643-velcro.jpeg)
 ###### --> image: Create an opening to get the animatronic components in and sew in velcro
+
+I've swen in a strong magnet inside Bruni. The 'plate' that Bruni sits on is an old plastic card with two supermagnets glued to it and encased in soft fabric.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1644-magnet.jpeg)
 ###### --> image: Add a strong magnet to keep Bruni in-place on my shoulder
 
+I've made the original version of the tail wagging motion bu found that the round 3D printed sections were rubbing the top/bottom of Bruni's skin deforming the tail's shape. So I drew new ones. On the right the original tail version, on the left the 2.0 version. The sleeker 3D printed sections fit Bruni better
+
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1675-tail-versions.jpeg)
-###### --> image: on the right the original tail version, on the left the 2.0 version. This one has sleeker 3D printed sections to fit Bruni better
+###### --> image: 1.0 right, 2.0 left
+
+First time testing the tailwag and holding Bruni over the component to see how wide the range would be.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1571_MOV-tailwag-test.gif)
-###### --> image: First time testing the almost-finished-tailwagging-function 'under' Bruni
+###### --> image: tailwag testing
+
+I'm using a Snapmaker A250 for all my builds as this platform can 3D print, CNC, laser engrave and cut. Here you see the CNC head in action cutting out the flame from a piece of transparent plexiglass.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1604_MOV-cutting-flame.gif)
-###### --> image: CNC-ing the custom flame om my Snapmaker A250
+###### --> image: CNC-ing the flame
+
+The custom designed and CNC'd flame from transparent plexiglass, the custom made 3D printed mount/bracket and the Flora pixel make up the components for the flame.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1635-flame-components.jpeg)
-###### --> image: The custom designed and CNC'd flame from transparent plexiglass, the custom made 3D printed mount/bracket and the Flora pixel make up the components for the flame
+###### --> image: flame components breakdown
+
+Attached the flame to Bruni. No glue needed, the bracket holds the flame tight. After two Disney trips, the flame is still securely fastened.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1679-flame-attached.jpeg)
-###### --> image: Attached the flame to Bruni. No glue needed, the bracket holds the flame tight
+###### --> image: flame attached
+
+Testing the flame function
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1634_MOV-flame-test)
-###### --> image: Testing the flame function
+###### --> image: Flame test
+
+The animatronic tail goes in, it is a very tight fit. Next is adding the stuffing back to fill up the tail.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1677-inserting-tail.jpeg)
-###### --> image: the animatronic tail goes in, it is a very tight fit. Next is adding the stuffing back to fill up the tail.
+###### --> image: Inserting tail components
+
+Finally, the final piece is adding the heart to Bruni
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1681-inserting-heart.jpeg)
-###### --> image: Finally, the final piece is adding the heart to Bruni
+###### --> image: inserting Bruni logicboard
