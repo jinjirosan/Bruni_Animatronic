@@ -17,3 +17,4 @@ I wanted to create an animatronic shoulder plushie of Bruni, the fire-breathing 
 - 18mm sewable Neo-Dymium magnet (can hold 1.9kg) for Bruni
 - 18mm sewable Neo-Dymium magnet + 25mm Neo-Dymium magnet (can hold 3.1kg) for shoulder patch base.
 
+![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1684.gif)
