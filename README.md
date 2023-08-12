@@ -81,4 +81,9 @@ The animatronic tail goes in, it is a very tight fit. The bottom plate is not ye
 Finally, the final piece is adding the heart to Bruni.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1681-inserting-heart.jpeg)
-###### --> image: inserting Bruni logicboard
+###### --> image: Inserting Bruni logicboard
+
+This is how Bruni can be easily re-charged
+
+![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1725-charging-bruni.jpeg)
+###### --> image: Charging Bruni
