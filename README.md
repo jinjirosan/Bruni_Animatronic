@@ -26,6 +26,8 @@ I wanted to create an animatronic shoulder plushie of Bruni, the fire-breathing 
 ## Build process
 
 A not-so-short impression of the build process going from 'just' the pluche animal to the animatronic version.
+
+
 First off, an overview of the components used. You see the EL-Wire included here however I have not yet integrated this on Bruni's back. I was thinking to outline his purple markings but found it challenging to integrate. So giving it some more thought.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1705-components.jpeg)
