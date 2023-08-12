@@ -24,7 +24,7 @@ The project was full of 'firsts' like designing a flame that fits Bruni's appear
 - 18mm sewable Neo-Dymium magnet + 25mm Neo-Dymium magnet (can hold 3.1kg) for shoulder patch base.
 
 ## Bruni in action
-- The microswitch in his front-right-paw activates the flame. The flame simulates a 'natural' fire-breathing dragon in purple-pink flames in various brightness.
+- The microswitch in his front-right-paw activates the flame. The flame simulates a 'natural' fire-breathing dragon in blue-purple-pink-magenta flames in various levels of brightness.
 - The microswitch in his front-left-paw activates his tail-wagging-function. The tailwag is simulating 'natural' behavior in 4 stages (2 to the left and 2 to the right). The angle or range of each wag is randomized.
 
 ![Bruni](https://github.com/jinjirosan/Bruni_Animatronic/blob/main/images/IMG_1684_MOV-demo.gif)
